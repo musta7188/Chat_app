@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
 
 
   socket.on("UserLocation", (data, callback) => {
-    socket.broadcast.emit(
+    io.emit(
       "location",generateLocationMessage(`https://google.com/maps?q=${data.latitude},${data.longitude}`)
     );
 

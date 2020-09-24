@@ -76,12 +76,12 @@ socket.on("message", (message) => {
 });
 
 
-socket.on('location', (locationUrl) =>{
-  console.log(locationUrl)
+socket.on('location', (message) =>{
+  console.log(message)
 
   const html = Mustache.render($locationTemplate, {
-    location: locationUrl.url,
-    createdAt: moment(locationUrl.createdAt).format("h:mm a"),
+    location: message.url,
+    createdAt: moment(message.createdAt).format("h:mm a"),
     message: "My Location"
   })
 
