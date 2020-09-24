@@ -23,7 +23,7 @@ app.use(express.static(publicDirectoryPath));
 io.on("connection", (socket) => {
 
   console.log("New WebSocket connection");
-  socket.emit("welcome", "Welcome to the platform");
+  socket.emit("message", "Welcome to the platform");
 
 
   ///send it to every clients expect the current socket (user)
@@ -35,7 +35,7 @@ io.on("connection", (socket) => {
     if (filter.isProfane(msg)) {
       return callback("Profanity is not allowed!!");
     }
-    io.emit("messageToAllUsers", msg); ////send the message to all users connect
+    io.emit("message", msg); ////send the message to all users connect
     callback();
   });
 
@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
 
   socket.on("UserLocation", (data, callback) => {
     socket.broadcast.emit(
-      "sendLocation",
+      "message",
       `https://google.com/maps?q=${data.latitude},${data.longitude}`
     );
 

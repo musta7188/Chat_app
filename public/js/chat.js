@@ -65,36 +65,15 @@ $locationButton.addEventListener("click", () => {
   });
 });
 
-socket.on("messageToAllUsers", (message) => {
-
-  const html = Mustache.render($messageTemplate, {
-    message
-  })
-  $messages.insertAdjacentHTML('beforeend', html)
-});
-
-
-socket.on("sendLocation", (msg) => {
-  console.log(msg);
-});
-
-
 socket.on("message", (message) => {
+  console.log(message);
   const html = Mustache.render($messageTemplate, {
     message
   })
   $messages.insertAdjacentHTML('beforeend', html)
-
-
 });
 
-socket.on("welcome", (msg) => {
-  console.log(msg);
-});
 
-socket.on("disconnect", (msg) => {
-  console.log(msg);
-});
 
 
 
