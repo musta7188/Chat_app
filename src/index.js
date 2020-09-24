@@ -3,7 +3,7 @@ const http = require("http");
 const express = require("express");
 const socketio = require("socket.io");
 const Filter = require("bad-words");
-const {generateMessage} = require('./utils/messages')
+const {generateMessage, generateLocationMessage} = require('./utils/messages')
 
 const app = express();
 ///allow co create a new web server, this manual set up usually done behind the scene from express, however to user socket.io we need to do it
@@ -51,8 +51,7 @@ io.on("connection", (socket) => {
 
   socket.on("UserLocation", (data, callback) => {
     socket.broadcast.emit(
-      "location",
-      `https://google.com/maps?q=${data.latitude},${data.longitude}`
+      "location",generateLocationMessage(`https://google.com/maps?q=${data.latitude},${data.longitude}`)
     );
 
     callback('location shared successfully with other users ')
