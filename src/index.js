@@ -3,6 +3,7 @@ const http = require("http");
 const express = require("express");
 const socketio = require("socket.io");
 const Filter = require("bad-words");
+const {generateMessage} = require('./utils/messages')
 
 const app = express();
 ///allow co create a new web server, this manual set up usually done behind the scene from express, however to user socket.io we need to do it
@@ -23,11 +24,11 @@ app.use(express.static(publicDirectoryPath));
 io.on("connection", (socket) => {
 
   console.log("New WebSocket connection");
-  socket.emit("message", "Welcome to the platform");
+  socket.emit("message", generateMessage("welcome"));
 
 
   ///send it to every clients expect the current socket (user)
-  socket.broadcast.emit("message", "a new user has joined");
+  socket.broadcast.emit("message", generateMessage("a new user has joined"));
 
 
   socket.on("sendMessage", (msg, callback) => {
@@ -35,14 +36,14 @@ io.on("connection", (socket) => {
     if (filter.isProfane(msg)) {
       return callback("Profanity is not allowed!!");
     }
-    io.emit("message", msg); ////send the message to all users connect
+    io.emit("message", generateMessage(msg)); ////send the message to all users connect
     callback();
   });
 
 
 
   socket.on("disconnect", () => {
-    io.emit("message", "A user has left");
+    io.emit("message", generateMessage("A user has left"));
   });
 
 
