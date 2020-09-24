@@ -4,7 +4,7 @@
   </head>
   <body>
    <h1>Chat app</h1> <br>
-
+   
     <div id="messages"></div>
     <form id="message-form">
       <input name="message" placeholder="message">
@@ -16,6 +16,12 @@
     <script id="message-template" type="text/html">
       <div>
         <p>{{message}}</p>
+        </div>
+    </script>
+
+    <script id="location-url" type="text/html">
+      <div>
+        <p><a id="location-anchor"  href={{location}} target="_blank">{{message}}</a></p>
         </div>
     </script>
 

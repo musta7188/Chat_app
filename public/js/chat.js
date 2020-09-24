@@ -10,7 +10,8 @@ const $locationButton = document.querySelector('#send-location')
 const $messages = document.querySelector('#messages')
 const $messageTemplate = document.querySelector('#message-template').innerHTML
 
-
+const $locationTemplate = document.querySelector('#location-url').innerHTML
+const $locationAnchor = document.querySelector('#location-anchor')
 
 
 $messageForm.addEventListener("submit", (e) => {
@@ -74,7 +75,17 @@ socket.on("message", (message) => {
 });
 
 
+socket.on('location', (locationUrl) =>{
+  console.log(locationUrl)
 
+  const html = Mustache.render($locationTemplate, {
+    location: locationUrl,
+    message: "My Location"
+  })
+
+$messages.insertAdjacentHTML('beforeend', html)
+
+})
 
 
 // server (emit) -> client (receive) ---acknowledgment --> server
