@@ -2,27 +2,41 @@
 
 const socket = io();
 
+const $messageForm  = document.querySelector("#message-form")
+const $messageFormInputs = $messageForm.querySelector('input')
+const $messageFormButton = $messageForm.querySelector('button')
+const $locationButton = document.querySelector('#send-location')
 
-document.querySelector("#message-form").addEventListener("submit", (e) => {
+$messageForm.addEventListener("submit", (e) => {
   e.preventDefault();
+  ///disable 
+  $messageFormButton.disabled = true
+
   const message = e.target.elements.message.value;
 
 
 
   socket.emit("sendMessage", message, (msgServer) =>{
+    $messageFormButton.disabled  = false
+    $messageFormInputs.value = ''
+    $messageFormInputs.focus()
+    ///enable
    if(msgServer){
      return console.log(msgServer)
    }
    console.log('Message delivered')
   });
+
+
 });
 
 
-document.querySelector("#send-location").addEventListener("click", () => {
+$locationButton.addEventListener("click", () => {
+ 
   if (!navigator.geolocation) {
     return alert("geolocation is not supported  by this browser");
   }
-
+ $locationButton.disabled = true
   navigator.geolocation.getCurrentPosition((position) => {
     const data = {
       latitude: position.coords.latitude,
@@ -32,7 +46,14 @@ document.querySelector("#send-location").addEventListener("click", () => {
     socket.emit("UserLocation", data, (msgServer) =>{
       
       console.log(' you shared your location ')
-      console.log(msgServer)
+
+      if(msgServer){
+        console.log(msgServer)
+        $locationButton.disabled = false
+      }
+
+
+      
     });
   });
 });
