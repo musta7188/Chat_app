@@ -43,9 +43,13 @@ socket.on('join', ({username, room}, callback) =>{
   
   socket.join(user.room)
 
-  socket.emit("message", generateMessage(`Welcome ${user.username}`));
-  socket.broadcast.to(user.room).emit("message", generateMessage(`${user.username} has joined`, user.username));
+  socket.emit("message", generateMessage(`Welcome ${user.username}`, "Admin"));
+  socket.broadcast.to(user.room).emit("message", generateMessage(`${user.username} has joined`, "Admin"));
 
+  io.to(user.room).emit('roomData', {
+    room: user.room,
+    users: getUsersInRoom(user.room)
+  })
   callback()
 })
 
@@ -58,8 +62,11 @@ socket.on('join', ({username, room}, callback) =>{
     if (filter.isProfane(msg)) {
       return callback("Profanity is not allowed!!");
     }
-    io.emit("message", generateMessage(msg, user.username));
-    callback();
+    if(user){
+        io.to(user.room).emit("message", generateMessage(msg, user.username));
+      callback();
+    }
+  
   });
 
 
@@ -70,7 +77,11 @@ socket.on('join', ({username, room}, callback) =>{
    const user =  RemoveUser(socket.id)
 
    if(user){
-    return io.to(user.room).emit("message", generateMessage(`${user.username} has left`, user.username));
+    io.to(user.room).emit("message", generateMessage(`${user.username} has left`, "Admin"));
+    io.to(user.room).emit('roomData', {
+      room: user.room,
+      users: getUsersInRoom(user.room)
+    })
    }
     
    
