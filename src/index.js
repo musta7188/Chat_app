@@ -4,7 +4,7 @@ const express = require("express");
 const socketio = require("socket.io");
 const Filter = require("bad-words");
 const {generateMessage, generateLocationMessage} = require('./utils/messages')
-
+const { getUsersInRoom, getUSer, RemoveUser, addUser }  = require('./utils/users')
 const app = express();
 ///allow co create a new web server, this manual set up usually done behind the scene from express, however to user socket.io we need to do it
 ///manually otherwise we wont have access to this and been able to pass it to the socketio() function below
@@ -22,39 +22,73 @@ app.use(express.static(publicDirectoryPath));
 
 
 io.on("connection", (socket) => {
-
+/// socket.emit (send event to a specific clients)
+/// socket.io (send event to all the clients)
+////socket.broadcast.emit(send to all clients except the one who sent it)
+//// ----- after using socket.join() ----- 
+////io.to.emit (emit event to everybody into a specific room)
+///socket.broadcast.to.emit (emit event to everyone in a specific chat room expect who sent it)
   console.log("New WebSocket connection");
-  socket.emit("message", generateMessage("welcome"));
 
 
-  ///send it to every clients expect the current socket (user)
-  socket.broadcast.emit("message", generateMessage("a new user has joined"));
+socket.on('join', ({username, room}, callback) =>{
+
+  const {error, user} =  addUser({id: socket.id, username, room})
+
+  if(error){
+  return  callback(error)
+  }
+
+
+  
+  socket.join(user.room)
+
+  socket.emit("message", generateMessage(`Welcome ${user.username}`));
+  socket.broadcast.to(user.room).emit("message", generateMessage(`${user.username} has joined`, user.username));
+
+  callback()
+})
+
+
 
 
   socket.on("sendMessage", (msg, callback) => {
+    const user = getUSer(socket.id)
     const filter = new Filter();
     if (filter.isProfane(msg)) {
       return callback("Profanity is not allowed!!");
     }
-    io.emit("message", generateMessage(msg)); ////send the message to all users connect
+    io.emit("message", generateMessage(msg, user.username));
     callback();
   });
 
 
 
+
+
   socket.on("disconnect", () => {
-    io.emit("message", generateMessage("A user has left"));
+   const user =  RemoveUser(socket.id)
+
+   if(user){
+    return io.to(user.room).emit("message", generateMessage(`${user.username} has left`, user.username));
+   }
+    
+   
   });
 
 
-
-
   socket.on("UserLocation", (data, callback) => {
-    io.emit(
-      "location",generateLocationMessage(`https://google.com/maps?q=${data.latitude},${data.longitude}`)
+    const user = getUSer(socket.id)
+    if(user) {
+
+      io.to(user.room).emit(
+      "location",
+      generateLocationMessage(`https://google.com/maps?q=${data.latitude},${data.longitude}`, user.username)
     );
 
     callback('location shared successfully with other users ')
+    }
+    
   });
 });
 
